@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nokta Bulutu İşleme</title>
+</head>
+<body style="text-align: center;">
+    <h1>Nokta Bulutu İşleme</h1>
+    <form id="upload-form" method="post" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Dosya Seç</button>
+    </form>
+    <div id="file-path" style="margin-top: 20px;"></div>
+    <div id="buttons" style="display: none; margin-top: 20px;">
+        <button onclick="processFile('open')">Nokta Bulutunu Aç</button>
+        <button onclick="processFile('find_planes')">Düzlemleri Bul</button>
+        <button onclick="processFile('find_multiple_planes')">Birden Fazla Düzlem Bul</button>
+        <button onclick="processFile('find_points_above_threshold')">Eşik Üstü Noktaları Bul</button>
+        <button onclick="processFile('find_convex_hull_with_normals')">Konveks Hull ve Normalleri Bul</button>
+        
+    </div>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.file_path) {
+                document.getElementById('file-path').innerText = `Yüklenen dosya yolu: ${result.file_path}`;
+                document.getElementById('buttons').style.display = 'block';
+            }
+        });
+
+        async function processFile(action) {
+            const response = await fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            });
+            const result = await response.json();
+            console.log(result.message);
+        }
+    </script>
+</body>
+</html>
